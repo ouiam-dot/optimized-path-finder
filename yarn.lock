@@ -7039,6 +7039,11 @@
   "resolved" "https://registry.npmjs.org/klona/-/klona-2.0.4.tgz"
   "version" "2.0.4"
 
+"konva@^8.0.1 || ^7.2.5", "konva@^8.2.3":
+  "integrity" "sha512-2hDlDzB9goNgV0Fm6oQqbq3ZISL34bOYvIpe4iXXQmOiPFFy1o3wwo0z0CX2x2Gv+fS6SHDR/JsRNRtEquApXA=="
+  "resolved" "https://registry.npmjs.org/konva/-/konva-8.2.3.tgz"
+  "version" "8.2.3"
+
 "language-subtag-registry@~0.3.2":
   "integrity" "sha512-L0IqwlIXjilBVVYKFT37X9Ih11Um5NEl9cbJIuU/SwP/zEEAbBPOnEeeuxVMf45ydWQRDQN3Nqc96OgbH1K+Pg=="
   "resolved" "https://registry.npmjs.org/language-subtag-registry/-/language-subtag-registry-0.3.21.tgz"
@@ -9295,7 +9300,7 @@
     "strip-ansi" "6.0.0"
     "text-table" "0.2.0"
 
-"react-dom@*", "react-dom@^17.0.2":
+"react-dom@*", "react-dom@^17.0.2", "react-dom@>=16.8.0":
   "integrity" "sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA=="
   "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-17.0.2.tgz"
   "version" "17.0.2"
@@ -9318,6 +9323,23 @@
   "integrity" "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w=="
   "resolved" "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
   "version" "17.0.2"
+
+"react-konva@^17.0.2-5":
+  "integrity" "sha512-IyzdfqRDK8r1ulp/jbLPX18AuO+n5yNtL0+4T0QEUsgArRqIl/VRCG1imA5mYJBk0cBNC5+fWDHN+HWEW62ZEQ=="
+  "resolved" "https://registry.npmjs.org/react-konva/-/react-konva-17.0.2-5.tgz"
+  "version" "17.0.2-5"
+  dependencies:
+    "react-reconciler" "~0.26.2"
+    "scheduler" "^0.20.2"
+
+"react-reconciler@~0.26.2":
+  "integrity" "sha512-nK6kgY28HwrMNwDnMui3dvm3rCFjZrcGiuwLc5COUipBK5hWHLOxMJhSnSomirqWwjPBJKV1QcbkI0VJr7Gl1Q=="
+  "resolved" "https://registry.npmjs.org/react-reconciler/-/react-reconciler-0.26.2.tgz"
+  "version" "0.26.2"
+  dependencies:
+    "loose-envify" "^1.1.0"
+    "object-assign" "^4.1.1"
+    "scheduler" "^0.20.2"
 
 "react-refresh@^0.8.3", "react-refresh@>=0.8.3 <0.10.0":
   "integrity" "sha512-X8jZHc7nCMjaCqoU+V2I0cOhNW+QMBwSUkeXnTi8IPe6zaRWfn60ZzvFDZqWPfmSJfjub7dDW1SP0jaHWLu/hg=="
@@ -9390,7 +9412,7 @@
   optionalDependencies:
     "fsevents" "^2.1.3"
 
-"react@*", "react@^17.0.2", "react@>= 16", "react@17.0.2":
+"react@*", "react@^17.0.2", "react@>= 16", "react@>=16.8.0", "react@17.0.2":
   "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
   "version" "17.0.2"

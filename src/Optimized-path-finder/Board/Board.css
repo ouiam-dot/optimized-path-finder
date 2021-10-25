@@ -1,12 +1,13 @@
 .board {
   outline: 2px solid rgb(134, 154, 189);
-  height: 100vh;
-  width: 100vw;
+  /* position: relative; */
+  /* height: 100vh;*/
+  /* width: 100vw; */
 }
 
 .row {
   height: 50px;
-  width: 100%;
+  /* width: 100%; */
 }
 
 .cell {

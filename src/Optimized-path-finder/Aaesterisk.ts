@@ -17,11 +17,14 @@ class Aaesterisk {
 
 private aStarInstance: AStarFinder;
 
-constructor() { 
+constructor(matrix:number[][]) { 
     this.aStarInstance = new AStarFinder({
         grid: {
-        //   matrix: myMatrix
-        }
+      matrix: matrix
+        },
+        includeStartNode: true,
+        includeEndNode: true,
+        diagonalAllowed:false,
       });
      }
 

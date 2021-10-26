@@ -1,0 +1,24 @@
+#play_panel {
+  top: 200px;
+  right: 150px;
+  position: absolute;
+  padding: 20px;
+  background-color: #fff;
+  color: #414856;
+  border-radius: 8px;
+  box-shadow: 5px 5px 10px rgb(0 0 0 / 50%);
+  cursor: default;
+  width: 250px;
+  z-index: 1100000;
+  /* height: 40px; */
+}
+
+.menu-button {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 8px;
+  margin: 0 2%;
+  width: 28%;
+}

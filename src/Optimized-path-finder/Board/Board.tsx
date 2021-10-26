@@ -2,31 +2,19 @@ import React, { useState } from "react";
 import { Stage, Layer, Rect, Line } from "react-konva";
 import "./Board.css";
 import { Tooltip } from "../tooltip/ToolTip";
-import Aaesterisk from "../Aaesterisk";
-interface Square {
-  center: Point;
-  rightCorner: Point;
-  type: "wall" | "start" | "end";
-  color: string;
-}
-enum SquareColors {
-  wall = "#6e97cc",
-  start = "#3CE1BB",
-  end = "#ff4154",
-}
-interface Point {
-  x: number;
-  cell: number;
-  row: number;
-  y: number;
-}
-interface IPath {
-  points: Point[];
-  canvasPoints: number[];
-}
+import Astar from "../algorithm/Astar";
+import { Menu } from "../menu/Menu";
+import { IPath, pathColor, Square, SquareColors, IPoint } from "./interfaces";
+import {
+  CellSize,
+  getBrowserPathPointsInCanvasFormat,
+  getSquareRightCornerBrowserCoordinates,
+  isDotInBoardLimit,
+} from "./helpers";
+//Create Board
 export const Board = () => {
   const [board] = useState(
-    new Array(20).fill(0).map((row) => new Array(20).fill(0))
+    new Array(15).fill(0).map((row) => new Array(15).fill(0))
   );
   const [squares, setSquares] = useState<Square[]>([]);
   const [path, setPath] = useState<IPath>();
@@ -36,162 +24,136 @@ export const Board = () => {
       const cells: number[] = [];
       row.forEach((cell, cellIdx) => {
         const square = squares.find(
-          (s) => s.center.row === rowIdx + 1 && s.center.cell === cellIdx
+          (s) => s.center.y === rowIdx && s.center.x === cellIdx
         );
         if (!square) {
           cells.push(0);
         } else if (square.type === "wall") {
           cells.push(1);
-        }
+        } else cells.push(0);
       });
       rows.push(cells);
     });
     return rows;
   };
-  // const [boardStart ,setBoardStart] = useState<Point>();
   const addSquare = (square: Square) => {
-    setPath(undefined);
+    // setPath(undefined);
     const oldSquareIndex = squares.findIndex(
-      (s) =>
-        s.center.row === square.center.row &&
-        s.center.cell === square.center.cell
+      (s) => s.center.x === square.center.x && s.center.y === square.center.y
     );
     if (oldSquareIndex >= 0) {
+      // delete the old square
       if (oldSquareIndex >= 0) squares.splice(oldSquareIndex, 1);
     }
-    if (square.type === "start") {
-      const oldStartIndex = squares.findIndex((s) => s.type === "start");
-      if (oldStartIndex >= 0) squares.splice(oldStartIndex, 1);
-    }
-    if (square.type === "start") {
-      const oldStartIndex = squares.findIndex((s) => s.type === "start");
-      if (oldStartIndex >= 0) squares.splice(oldStartIndex, 1);
-    }
-    if (square.type === "end") {
-      const oldEndIndex = squares.findIndex((s) => s.type === "end");
-      if (oldEndIndex >= 0) squares.splice(oldEndIndex, 1);
-    }
-    setSquares([...squares, square]);
 
+    setSquares([...squares, square]);
+  };
+  const clearAll = () => {
+    setPath(undefined);
+    setSquares([]);
+  };
+  const clearWalls = () => {
+    const newSquares: Square[] = [];
+    squares.forEach((square) => {
+      if (square.type !== "wall") newSquares.push(square);
+    });
+    setSquares(newSquares);
+  };
+  const search = () => {
+    setPath(undefined);
     const start = squares.find((s) => s.type === "start");
     const end = squares.find((s) => s.type === "end");
     if (start && end) {
       const matrix = getMatrix();
-      const algorithm = new Aaesterisk(matrix);
+      console.log(matrix);
+      const algorithm = new Astar(matrix);
       const result = algorithm.finShortestPath(
         {
-          x: start.center.cell - 1,
-          y: start.center.row - 1,
+          x: start.center.x,
+          y: start.center.y,
         },
         {
-          x: end.center.cell - 1,
-          y: end.center.row - 1,
+          x: end.center.x,
+          y: end.center.y,
         }
       );
-      const shortestPath = convertPathPoints(result);
+      const shortestPath = getPathPoints(result);
       setPath(shortestPath);
     }
   };
-  const convertPathPoints = (algorithmResult: number[][]): IPath => {
-    const path: IPath = { points: [], canvasPoints: [] };
-    const boardStart = getPos(document.getElementById("board"));
+  const getPathPoints = (algorithmResult: number[][]): IPath => {
+    const path: IPath = { points: [] };
     algorithmResult.forEach((point: number[]) => {
       path.points.push({
-        x: (point[0] + 1) * 50 + boardStart.x,
-        y: (point[1] + 1) * 50 + boardStart.y,
-        cell: point[0] + 1,
-        row: point[1] + 1,
+        x: point[0],
+        y: point[1],
       });
     });
-    path.points.forEach((point) => {
-      path.canvasPoints.push(point.x);
-      path.canvasPoints.push(point.y);
-    });
+
     return path;
   };
-  const getDotColor = (cell: number, row: number): string => {
+  const getDotColor = (dot: IPoint): string => {
     const findSquare = squares.find(
-      (square) =>
-        square.center.cell === cell + 1 && square.center.row === row + 1
+      (square) => square.center.x === dot.x && square.center.y === dot.y
     );
     if (findSquare) {
       if (findSquare.type === "start") return SquareColors.start;
       else if (findSquare.type === "end") return SquareColors.end;
       else return SquareColors.wall;
-    } else return SquareColors.wall;
+    } else {
+      // check if there's a path cross this dot
+      if (path) {
+        const findPoint = path.points.find(
+          (point) => point.x === dot.x && point.y === dot.y
+        ); // TODO: check all paths
+        if (findPoint) {
+          return pathColor;
+        }
+      }
+      return SquareColors.wall;
+    }
   };
   return (
     <div id="board" className="board">
-      {board.map((row, rowIdx) => (
-        <div key={rowIdx} className="row">
-          {row.map((cell, cellIdx) => {
+      <Menu
+        onStartSearch={search}
+        clearAll={clearAll}
+        clearWalls={clearWalls}
+      />
+      {board.map((row, rowIndex) => (
+        <div key={rowIndex} className="row">
+          {row.map((cell, cellIndex) => {
+            const dot: IPoint = { x: cellIndex, y: rowIndex };
             return (
-              <div key={cellIdx} className="cell">
-                {cellIdx + 1 !== row.length && rowIdx + 1 !== board.length && (
+              <div key={dot.x} className="cell">
+                {!isDotInBoardLimit(dot, row.length, board.length) && (
                   <div
                     className="dot"
-                    style={{ backgroundColor: getDotColor(cellIdx, rowIdx) }}
+                    style={{
+                      backgroundColor: getDotColor(dot),
+                    }}
+                    onClick={() => {
+                      console.log(`x :${dot.x} , y: ${dot.y}`);
+                    }}
                   >
                     <Tooltip
                       onSetEnd={() => {
-                        const boardStart = getPos(
-                          document.getElementById("board")
-                        );
                         addSquare({
-                          center: {
-                            x: (cellIdx + 1) * 50 + boardStart.x,
-                            y: (rowIdx + 1) * 50 + boardStart.y,
-                            cell: cellIdx + 1,
-                            row: rowIdx + 1,
-                          },
-                          rightCorner: {
-                            x: cellIdx * 50 + 25 + boardStart.x,
-                            y: rowIdx * 50 + 25 + boardStart.y,
-                            cell: cellIdx,
-                            row: rowIdx,
-                          },
+                          center: dot,
                           type: "end",
                           color: SquareColors.end,
                         });
                       }}
                       onSetStart={() => {
-                        const boardStart = getPos(
-                          document.getElementById("board")
-                        );
                         addSquare({
-                          center: {
-                            x: (cellIdx + 1) * 50 + boardStart.x,
-                            y: (rowIdx + 1) * 50 + boardStart.y,
-                            cell: cellIdx + 1,
-                            row: rowIdx + 1,
-                          },
-                          rightCorner: {
-                            x: cellIdx * 50 + 25 + boardStart.x,
-                            y: rowIdx * 50 + 25 + boardStart.y,
-                            cell: cellIdx,
-                            row: rowIdx,
-                          },
+                          center: dot,
                           type: "start",
                           color: SquareColors.start,
                         });
                       }}
                       onSetWall={() => {
-                        const boardStart = getPos(
-                          document.getElementById("board")
-                        );
                         addSquare({
-                          center: {
-                            x: (cellIdx + 1) * 50 + boardStart.x,
-                            y: (rowIdx + 1) * 50 + boardStart.y,
-                            cell: cellIdx + 1,
-                            row: rowIdx + 1,
-                          },
-                          rightCorner: {
-                            x: cellIdx * 50 + 25 + boardStart.x,
-                            y: rowIdx * 50 + 25 + boardStart.y,
-                            cell: cellIdx,
-                            row: rowIdx,
-                          },
+                          center: dot,
                           type: "wall",
                           color: SquareColors.wall,
                         });
@@ -207,22 +169,23 @@ export const Board = () => {
       <Stage width={window.innerWidth} height={window.innerHeight}>
         <Layer>
           {squares.map((square) => {
+            const rightCorner = getSquareRightCornerBrowserCoordinates(square);
             return (
               <Rect
-                x={square.rightCorner.x}
-                y={square.rightCorner.y}
-                width={50}
-                height={50}
-                onClick={(e) => {}}
+                x={rightCorner.x}
+                y={rightCorner.y}
+                width={CellSize}
+                height={CellSize}
+                onClick={(e) => { }}
                 fill={square.color}
               />
             );
           })}
           {path && (
             <Line
-              points={path.canvasPoints}
-              tension={0.1}
-              stroke={SquareColors.start}
+              points={getBrowserPathPointsInCanvasFormat(path)}
+              // tension={0.1}
+              stroke={pathColor}
             />
           )}
         </Layer>
@@ -230,15 +193,5 @@ export const Board = () => {
     </div>
   );
 };
-function getPos(element: any) {
-  // yay readability
-  for (
-    var lx = 0, ly = 0;
-    element != null;
-    lx += element.offsetLeft,
-      ly += element.offsetTop,
-      element = element.offsetParent
-  );
-  return { x: lx, y: ly };
-}
+
 export default Board;

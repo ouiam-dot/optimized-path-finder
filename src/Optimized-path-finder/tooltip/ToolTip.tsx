@@ -12,7 +12,6 @@ export const Tooltip = (props: TooltipProps) => {
     <>
       <div className="wrapper" onClick={() => setVisible(true)}>
         <input type="checkbox" checked={visible} />
-        {/* <div className="btn"></div> */}
         <div className="tooltip">
           <span
             onClick={(e) => {
@@ -41,6 +40,14 @@ export const Tooltip = (props: TooltipProps) => {
             }}
           >
             End
+          </span>
+          <span
+            onClick={(e) => {
+              setVisible(false);
+              e.stopPropagation();
+            }}
+          >
+            Cancel
           </span>
         </div>
       </div>

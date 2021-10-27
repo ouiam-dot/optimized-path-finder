@@ -17,7 +17,11 @@ export const Board = () => {
     new Array(15).fill(0).map((row) => new Array(15).fill(0))
   );
   const [squares, setSquares] = useState<Square[]>([]);
-  const [path, setPath] = useState<IPath>();
+
+  const [paths, setPaths] = useState<IPath[]>([]);
+  const [start, setStart] = useState<Square>();
+  const [end, setEnd] = useState<Square>();
+
   const getMatrix = () => {
     const rows: number[][] = [];
     board.forEach((row, rowIdx) => {
@@ -30,26 +34,70 @@ export const Board = () => {
           cells.push(0);
         } else if (square.type === "wall") {
           cells.push(1);
-        } else cells.push(0);
+        } else if (square.type === "start" && square !== start) cells.push(1);
+        else if (square.type === "end" && square !== end) cells.push(1);
+        else cells.push(0);
       });
       rows.push(cells);
     });
     return rows;
+  };
+  const isThePointInAPath = (point: IPoint): boolean => {
+    const findPath = paths.find((path) =>
+      path.points.find((p) => p.x === point.x && p.y === point.y)
+    );
+    if (findPath) return true;
+    else return false;
   };
   const addSquare = (square: Square) => {
     // setPath(undefined);
     const oldSquareIndex = squares.findIndex(
       (s) => s.center.x === square.center.x && s.center.y === square.center.y
     );
+    console.log(isThePointInAPath(square.center));
+    if (oldSquareIndex >= 0) {
+      const oldSquare = squares[oldSquareIndex];
+      if (oldSquare.type === "start" || oldSquare.type === "end") {
+        // do nothing
+        return;
+      }
+    } else if (isThePointInAPath(square.center)) {
+      // do nothing
+      return;
+    }
+    if (square.type === "start") {
+      if (start) {
+        const oldStartIndex = squares.findIndex(
+          (s) => s.center.x === start.center.x && s.center.y === start.center.y
+        );
+        squares.splice(oldStartIndex, 1);
+        setStart(square);
+      } else {
+        setStart(square);
+      }
+    } else if (square.type === "end") {
+      if (end) {
+        const oldEndIndex = squares.findIndex(
+          (s) => s.center.x === end.center.x && s.center.y === end.center.y
+        );
+        squares.splice(oldEndIndex, 1);
+        setEnd(square);
+      } else {
+        setEnd(square);
+      }
+    } else {
+    }
     if (oldSquareIndex >= 0) {
       // delete the old square
-      if (oldSquareIndex >= 0) squares.splice(oldSquareIndex, 1);
+      squares.splice(oldSquareIndex, 1);
     }
 
     setSquares([...squares, square]);
   };
   const clearAll = () => {
-    setPath(undefined);
+    setPaths([]);
+    setStart(undefined);
+    setEnd(undefined);
     setSquares([]);
   };
   const clearWalls = () => {
@@ -60,9 +108,6 @@ export const Board = () => {
     setSquares(newSquares);
   };
   const search = () => {
-    setPath(undefined);
-    const start = squares.find((s) => s.type === "start");
-    const end = squares.find((s) => s.type === "end");
     if (start && end) {
       const matrix = getMatrix();
       console.log(matrix);
@@ -78,7 +123,9 @@ export const Board = () => {
         }
       );
       const shortestPath = getPathPoints(result);
-      setPath(shortestPath);
+      setPaths([...paths, shortestPath]);
+      setStart(undefined);
+      setEnd(undefined);
     }
   };
   const getPathPoints = (algorithmResult: number[][]): IPath => {
@@ -100,19 +147,13 @@ export const Board = () => {
       if (findSquare.type === "start") return SquareColors.start;
       else if (findSquare.type === "end") return SquareColors.end;
       else return SquareColors.wall;
-    } else {
+    } else if (isThePointInAPath(dot)) {
       // check if there's a path cross this dot
-      if (path) {
-        const findPoint = path.points.find(
-          (point) => point.x === dot.x && point.y === dot.y
-        ); // TODO: check all paths
-        if (findPoint) {
-          return pathColor;
-        }
-      }
-      return SquareColors.wall;
+      return pathColor;
     }
+    return SquareColors.wall;
   };
+
   return (
     <div id="board" className="board">
       <Menu
@@ -176,18 +217,19 @@ export const Board = () => {
                 y={rightCorner.y}
                 width={CellSize}
                 height={CellSize}
-                onClick={(e) => { }}
+                onClick={(e) => {}}
                 fill={square.color}
               />
             );
           })}
-          {path && (
+          {paths.map((path) => (
             <Line
               points={getBrowserPathPointsInCanvasFormat(path)}
+              strokeWidth={4}
               // tension={0.1}
               stroke={pathColor}
             />
-          )}
+          ))}
         </Layer>
       </Stage>
     </div>

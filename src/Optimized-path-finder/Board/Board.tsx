@@ -4,13 +4,14 @@ import "./Board.css";
 import { Tooltip } from "../tooltip/ToolTip";
 import Astar from "../algorithm/Astar";
 import { Menu } from "../menu/Menu";
-import { IPath, pathColor, Square, SquareColors, IPoint } from "./interfaces";
+import { IPath, pathColor, Square, SquareColors, IPoint, pathShortestColor } from "./interfaces";
 import {
   CellSize,
   getBrowserPathPointsInCanvasFormat,
   getSquareRightCornerBrowserCoordinates,
   isDotInBoardLimit,
 } from "./helpers";
+import { pathfinding } from "../../App";
 //Create Board
 export const Board = () => {
   const [board] = useState(
@@ -107,12 +108,19 @@ export const Board = () => {
     });
     setSquares(newSquares);
   };
-  const search = () => {
+  const search = async () => {
     if (start && end) {
       const matrix = getMatrix();
       console.log(matrix);
-      const algorithm = new Astar(matrix);
-      const result = algorithm.finShortestPath(
+      const result = await pathfinding({
+        start: start.center,
+        end: end.center,
+        grid: matrix,
+      });
+      const shortestPath: IPath[] = result.data as IPath[];
+      console.log(shortestPath)
+     // const algorithm = new Astar(matrix);
+/*       const result = algorithm.finShortestPath(
         {
           x: start.center.x,
           y: start.center.y,
@@ -121,9 +129,12 @@ export const Board = () => {
           x: end.center.x,
           y: end.center.y,
         }
-      );
-      const shortestPath = getPathPoints(result);
-      setPaths([...paths, shortestPath]);
+      ); */
+     // const shortestPath = getPathPoints(result);
+     const shortPath = shortestPath.find(path=>path.isShortest) 
+      //setPaths([...paths, ...shortestPath]);
+      if(shortPath)
+      setPaths([...paths, shortPath]);
       setStart(undefined);
       setEnd(undefined);
     }
@@ -227,7 +238,7 @@ export const Board = () => {
               points={getBrowserPathPointsInCanvasFormat(path)}
               strokeWidth={4}
               // tension={0.1}
-              stroke={pathColor}
+              stroke={path.isShortest? pathShortestColor: pathColor}
             />
           ))}
         </Layer>

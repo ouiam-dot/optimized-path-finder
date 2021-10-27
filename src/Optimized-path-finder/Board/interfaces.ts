@@ -9,11 +9,13 @@ export interface Square {
     end = "#ff4154",
   }
 export const pathColor = "#3CE1BB";
+export const pathShortestColor = "#ffffff";
 export interface IPoint {
     x: number;
     y: number;
   }
  export interface IPath {
     points: IPoint[];
+    isShortest?: boolean;
     // canvasPoints: number[];
   }

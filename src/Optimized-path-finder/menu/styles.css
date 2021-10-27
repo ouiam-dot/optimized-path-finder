@@ -1,6 +1,6 @@
 #play_panel {
-  top: 350px;
-  right: 150px;
+  top: 250px;
+  right: 10px;
   position: absolute;
   padding: 20px;
   background-color: #282c34;
@@ -8,20 +8,21 @@
   border-radius: 6px;
   box-shadow: 1px 1px 5px rgb(0 0 0 / 25%);
   cursor: default;
-  width: 400px;
+  width: 300px;
   z-index: 1100000;
   /* height: 40px; */
 }
 
 p{
   color:#6e97cc;
+  font-size:12px;
 }
 .menu-button {
   background: #282c34;
   font-family: 'Trebuchet MS', sans-serif;
   border-radius: 15px;
   color:#6e97cc;
-  font-size:20px;
+  font-size:12px;
   cursor: pointer;
 
   padding: 8px 20px;

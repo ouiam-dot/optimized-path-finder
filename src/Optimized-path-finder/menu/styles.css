@@ -1,24 +1,30 @@
 #play_panel {
-  top: 200px;
+  top: 350px;
   right: 150px;
   position: absolute;
   padding: 20px;
-  background-color: #fff;
-  color: #414856;
-  border-radius: 8px;
-  box-shadow: 5px 5px 10px rgb(0 0 0 / 50%);
+  background-color: #282c34;
+  color: #282c34;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px rgb(0 0 0 / 25%);
   cursor: default;
-  width: 250px;
+  width: 400px;
   z-index: 1100000;
   /* height: 40px; */
 }
 
+p{
+  color:#6e97cc;
+}
 .menu-button {
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 5px;
-  font-size: 16px;
+  background: #282c34;
+  font-family: 'Trebuchet MS', sans-serif;
+  border-radius: 15px;
+  color:#6e97cc;
+  font-size:20px;
   cursor: pointer;
-  padding: 2px 8px;
-  margin: 0 2%;
+
+  padding: 8px 20px;
+  margin: 0 1%;
   width: 28%;
 }

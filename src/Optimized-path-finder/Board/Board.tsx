@@ -17,7 +17,7 @@ export const Board = () => {
     new Array(15).fill(0).map((row) => new Array(15).fill(0))
   );
   const [squares, setSquares] = useState<Square[]>([]);
-
+    //nts; paths will hold the state and setPaths is the method that will allow us to update the IPath[] state.
   const [paths, setPaths] = useState<IPath[]>([]);
   const [start, setStart] = useState<Square>();
   const [end, setEnd] = useState<Square>();

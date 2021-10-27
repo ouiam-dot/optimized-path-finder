@@ -8,6 +8,7 @@ interface MenuProps {
 export const Menu = (props: MenuProps) => {
   return (
     <div id="play_panel">
+      <p>Choose end node and start node on grid</p>
       <button
         className="menu-button"
         onClick={() => {

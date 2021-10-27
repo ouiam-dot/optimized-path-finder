@@ -2,6 +2,7 @@ import { IPoint } from "astar-typescript/dist/interfaces/astar.interfaces";
 import { IPath, Square } from "./interfaces";
 export const CellSize = 50;
 
+// If a dot was in board limit, it shouldn't be clickable
 export function isDotInBoardLimit(
     dot: IPoint,
     cellsLength: number,
@@ -9,6 +10,7 @@ export function isDotInBoardLimit(
   ): boolean {
     return dot.x + 1 === cellsLength || dot.y + 1 === rowsLength;
   }
+// Convert from board's coordinates to browser's coordinates 
  export function getBrowserPathPointsInCanvasFormat(path: IPath): number[] {
     const results: number[] = [];
     const repereOrigine = getRepereOriginBrowserCoordinates();
@@ -23,6 +25,7 @@ export function isDotInBoardLimit(
     });
     return results;
   }
+//Get corners coordinates in origin repere
  export  function getSquareRightCornerBrowserCoordinates(square: Square): IPoint {
     const repereOrigine = getRepereOriginBrowserCoordinates();
     return {
@@ -30,12 +33,14 @@ export function isDotInBoardLimit(
       y: square.center.y * CellSize - CellSize / 2 + repereOrigine.y,
     };
   }
+//
  export function getRepereOriginBrowserCoordinates(): IPoint {
     const boardStart = getBrowserCoordinatesOfHtmlElement(
       document.getElementById("board")
     ); // board start
     return { x: boardStart.x + CellSize, y: boardStart.y + CellSize };
   }
+  //To get coordinates of any html elemnt in browser repere
   // copied from stackoverflow
  export function getBrowserCoordinatesOfHtmlElement(element: any) {
     // yay readability

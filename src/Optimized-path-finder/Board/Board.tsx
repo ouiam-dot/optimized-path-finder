@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import { Stage, Layer, Rect, Line } from "react-konva";
 import "./Board.css";
 import { Tooltip } from "../tooltip/ToolTip";
-import Astar from "../algorithm/Astar";
 import { Menu } from "../menu/Menu";
-import { IPath, pathColor, Square, SquareColors, IPoint, pathShortestColor } from "./interfaces";
+import {
+  IPath,
+  pathColor,
+  Square,
+  SquareColors,
+  IPoint,
+  pathShortestColor,
+} from "./interfaces";
 import {
   CellSize,
   getBrowserPathPointsInCanvasFormat,
@@ -18,10 +24,11 @@ export const Board = () => {
     new Array(15).fill(0).map((row) => new Array(15).fill(0))
   );
   const [squares, setSquares] = useState<Square[]>([]);
-    //nts; paths will hold the state and setPaths is the method that will allow us to update the IPath[] state.
+  //nts; paths will hold the state and setPaths is the method that will allow us to update the IPath[] state.
   const [paths, setPaths] = useState<IPath[]>([]);
   const [start, setStart] = useState<Square>();
   const [end, setEnd] = useState<Square>();
+  const [showAllPaths, setShowAllPaths] = useState<boolean>();
 
   const getMatrix = () => {
     const rows: number[][] = [];
@@ -47,7 +54,7 @@ export const Board = () => {
     const findPath = paths.find((path) =>
       path.points.find((p) => p.x === point.x && p.y === point.y)
     );
-    if (findPath) return true;
+    if (findPath && (findPath.isShortest || showAllPaths)) return true;
     else return false;
   };
   const addSquare = (square: Square) => {
@@ -117,10 +124,10 @@ export const Board = () => {
         end: end.center,
         grid: matrix,
       });
-      const shortestPath: IPath[] = result.data as IPath[];
-      console.log(shortestPath)
-     // const algorithm = new Astar(matrix);
-/*       const result = algorithm.finShortestPath(
+      const shortestPaths: IPath[] = result.data as IPath[];
+      console.log(shortestPaths);
+      // const algorithm = new Astar(matrix);
+      /*       const result = algorithm.finShortestPath(
         {
           x: start.center.x,
           y: start.center.y,
@@ -130,26 +137,15 @@ export const Board = () => {
           y: end.center.y,
         }
       ); */
-     // const shortestPath = getPathPoints(result);
-     const shortPath = shortestPath.find(path=>path.isShortest) 
+      //  const shortestPath = getPathPoints(result);
+      // const shortPath = shortestPath.find((path) => path.isShortest);
       //setPaths([...paths, ...shortestPath]);
-      if(shortPath)
-      setPaths([...paths, shortPath]);
+      setPaths([...paths, ...shortestPaths]);
       setStart(undefined);
       setEnd(undefined);
     }
   };
-  const getPathPoints = (algorithmResult: number[][]): IPath => {
-    const path: IPath = { points: [] };
-    algorithmResult.forEach((point: number[]) => {
-      path.points.push({
-        x: point[0],
-        y: point[1],
-      });
-    });
 
-    return path;
-  };
   const getDotColor = (dot: IPoint): string => {
     const findSquare = squares.find(
       (square) => square.center.x === dot.x && square.center.y === dot.y
@@ -166,83 +162,100 @@ export const Board = () => {
   };
 
   return (
-    <div id="board" className="board">
+    <div className="ctn-board">
+      <div id="board" className="board">
+        {board.map((row, rowIndex) => (
+          <div key={rowIndex} className="row">
+            {row.map((cell, cellIndex) => {
+              const dot: IPoint = { x: cellIndex, y: rowIndex };
+              return (
+                <div key={dot.x} className="cell">
+                  {!isDotInBoardLimit(dot, row.length, board.length) && (
+                    <div
+                      className="dot"
+                      style={{
+                        backgroundColor: getDotColor(dot),
+                      }}
+                      onClick={() => {
+                        console.log(`x :${dot.x} , y: ${dot.y}`);
+                      }}
+                    >
+                      <Tooltip
+                        onSetEnd={() => {
+                          addSquare({
+                            center: dot,
+                            type: "end",
+                            color: SquareColors.end,
+                          });
+                        }}
+                        onSetStart={() => {
+                          addSquare({
+                            center: dot,
+                            type: "start",
+                            color: SquareColors.start,
+                          });
+                        }}
+                        onSetWall={() => {
+                          addSquare({
+                            center: dot,
+                            type: "wall",
+                            color: SquareColors.wall,
+                          });
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        <Stage width={window.innerWidth} height={window.innerHeight}>
+          <Layer>
+            {squares.map((square) => {
+              const rightCorner =
+                getSquareRightCornerBrowserCoordinates(square);
+              return (
+                <Rect
+                  x={rightCorner.x}
+                  y={rightCorner.y}
+                  width={CellSize}
+                  height={CellSize}
+                  onClick={(e) => {}}
+                  fill={square.color}
+                />
+              );
+            })}
+            {paths
+              .filter((path) => path.isShortest)
+              .map((path) => (
+                <Line
+                  points={getBrowserPathPointsInCanvasFormat(path)}
+                  strokeWidth={4}
+                  // tension={0.1}
+                  stroke={pathShortestColor}
+                />
+              ))}
+            {showAllPaths &&
+              paths
+                .filter((path) => !path.isShortest)
+                .map((path) => (
+                  <Line
+                    points={getBrowserPathPointsInCanvasFormat(path)}
+                    strokeWidth={4}
+                    // tension={0.1}
+                    stroke={pathColor}
+                  />
+                ))}
+          </Layer>
+        </Stage>
+      </div>
       <Menu
         onStartSearch={search}
-        clearAll={clearAll}
         clearWalls={clearWalls}
+        clearAll={clearAll}
+        ShowAllPaths={() => setShowAllPaths(!showAllPaths)}
       />
-      {board.map((row, rowIndex) => (
-        <div key={rowIndex} className="row">
-          {row.map((cell, cellIndex) => {
-            const dot: IPoint = { x: cellIndex, y: rowIndex };
-            return (
-              <div key={dot.x} className="cell">
-                {!isDotInBoardLimit(dot, row.length, board.length) && (
-                  <div
-                    className="dot"
-                    style={{
-                      backgroundColor: getDotColor(dot),
-                    }}
-                    onClick={() => {
-                      console.log(`x :${dot.x} , y: ${dot.y}`);
-                    }}
-                  >
-                    <Tooltip
-                      onSetEnd={() => {
-                        addSquare({
-                          center: dot,
-                          type: "end",
-                          color: SquareColors.end,
-                        });
-                      }}
-                      onSetStart={() => {
-                        addSquare({
-                          center: dot,
-                          type: "start",
-                          color: SquareColors.start,
-                        });
-                      }}
-                      onSetWall={() => {
-                        addSquare({
-                          center: dot,
-                          type: "wall",
-                          color: SquareColors.wall,
-                        });
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ))}
-      <Stage width={window.innerWidth} height={window.innerHeight}>
-        <Layer>
-          {squares.map((square) => {
-            const rightCorner = getSquareRightCornerBrowserCoordinates(square);
-            return (
-              <Rect
-                x={rightCorner.x}
-                y={rightCorner.y}
-                width={CellSize}
-                height={CellSize}
-                onClick={(e) => {}}
-                fill={square.color}
-              />
-            );
-          })}
-          {paths.map((path) => (
-            <Line
-              points={getBrowserPathPointsInCanvasFormat(path)}
-              strokeWidth={4}
-              // tension={0.1}
-              stroke={path.isShortest? pathShortestColor: pathColor}
-            />
-          ))}
-        </Layer>
-      </Stage>
     </div>
   );
 };

@@ -1,9 +1,11 @@
 import React from "react";
+import { pathColor, pathShortestColor } from "../Board/interfaces";
 import "./styles.css";
 interface MenuProps {
   onStartSearch: () => void;
   clearAll: () => void;
   clearWalls: () => void;
+  ShowAllPaths: () => void;
 }
 export const Menu = (props: MenuProps) => {
   return (
@@ -15,7 +17,7 @@ export const Menu = (props: MenuProps) => {
           props.onStartSearch();
         }}
       >
-        Start Search
+        Start search
       </button>
       <button
         className="menu-button"
@@ -23,7 +25,7 @@ export const Menu = (props: MenuProps) => {
           props.clearAll();
         }}
       >
-        Clear All
+        Clear all
       </button>
       <button
         className="menu-button"
@@ -31,8 +33,38 @@ export const Menu = (props: MenuProps) => {
           props.clearWalls();
         }}
       >
-        Clear Walls
+        Clear walls
       </button>
+      <button
+        className="menu-large-button"
+        onClick={() => {
+          props.ShowAllPaths();
+        }}
+      >
+        Show all paths
+      </button>
+      <div className="map">
+        <div className="map-item">
+          <div
+            className="line"
+            style={{ backgroundColor: pathShortestColor }}
+          ></div>
+          <div className="instruction">The shortest path with minimal turns</div>
+        </div>
+        <div className="map-item">
+          <div className="line" style={{ backgroundColor: pathColor }}></div>
+          <div className="instruction">One of the shortest paths</div>
+        </div>
+        {/* <div className="map-item">
+          <div className="line">
+            <div
+              className="square"
+              style={{ backgroundColor: SquareColors.start }}
+            ></div>
+          </div>
+          <div className="instruction"> Start</div>
+        </div> */}
+      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-## Demo: [visit app](https://optimized-path-finder-1a74f.web.app/)
+## Demo: 
 ![Demo](demo/demo.gif)
 
 ## Overview
